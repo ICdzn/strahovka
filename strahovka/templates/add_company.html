@@ -1,0 +1,32 @@
+[[extend "layout.html"]]
+Укажите, к какой компании вы относитесь:
+<div>
+<select style="width:200px;"><option value="%null%"></option>
+    [[for row in rows:]]
+        <option value="[[=row.id]]">[[=row.IAN_FULL_NAME]]</option>
+    [[pass]]
+</select>
+</div>
+<div>
+    <button id="add">Добавить</button>
+    <label id="vse"></label><br>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+$(document).ready(function () {
+        $('select').change(function() {
+            var choice_id=this.value;
+            console.log(choice_id);
+                $('button').bind("click", function(){
+                console.log(choice_id);
+                        $.ajax({
+                            type:"POST",
+                            data: {'choice_id':choice_id},
+                            url: 'add_company',
+                            success: function(){$(vse).text('Добавлено')}
+                            });
+                        });
+                    });
+                });
+</script>
