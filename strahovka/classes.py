@@ -13,9 +13,9 @@ class Updates:
         id = self.last_id + 1
 
         r = requests.post(
-            'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU=&p_REGNO='
-            '&p_FULLNAME=&p_IM_ST=%25null%25&p_IRL_FT=3&p_NFS=0&p_SVIDOTSTVO_SERIES=&p_SVIDOTSTVO_NO=&p_ACTDATE_FROM=&p_ACTDATE_TO=&p_ILD_NUMBER='
-            '&pagenum=1&btn_all=1&__VIEWSTATEGENERATOR=EC5CD28C')
+            'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU'
+            '=&p_REGNO=&p_FULLNAME=&p_IM_ST=%25null%25&p_IRL_FT=3&p_NFS=0&p_SVIDOTSTVO_SERIES=&p_SVIDOTSTVO_NO='
+            '&p_ACTDATE_FROM=&p_ACTDATE_TO=&p_ILD_NUMBER=&pagenum=1&btn_all=1&__VIEWSTATEGENERATOR=EC5CD28C')
 
         html = r.text
         soup = BeautifulSoup(html,'lxml')
@@ -103,12 +103,16 @@ class Updates:
         return table_info
 
     def compare(self,rows,companies):
-         changes=''
-         for row in rows:
-             i=0
-             for key in companies[0]:
-                 if row[key] != companies[i][key]:
-                     changes+=key+','
-             companies[i]['changes']=changes
-             i+=1
+        changes = ''
+        for row in rows:
+            i=0
+            for key in companies[0]:
+                if row.IM_NUMIDENT == companies[i]['IM_NUMIDENT']:
+                    if row[key] == companies[i][key]:
+                        changes+=key+','
+                    else:continue
+            companies[i]['changes']=changes
+            changes = ''
+            i+=1
+        return changes
 

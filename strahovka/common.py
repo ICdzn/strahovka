@@ -66,7 +66,7 @@ for item in settings.LOGGERS:
     logger.addHandler(handler)
 
 
-db = DAL('sqlite://str.db',folder=os.path.join(os.path.dirname(__file__), "databases"))
+db = DAL('sqlite://str_kk.db',folder=os.path.join(os.path.dirname(__file__), "databases"))
 # define global objects that may or may not be used by th actions
 cache = Cache(size=1000)
 T = Translator(settings.T_FOLDER)

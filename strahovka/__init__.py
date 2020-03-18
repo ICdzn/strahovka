@@ -1,7 +1,7 @@
 from py4web import action, request, response, Field, Session
 from .models import db
 from py4web.utils.form import Form, FormStyleBulma
-from .common import db,names,tables
+from .common import names,tables
 from .classes import Updates
 
 import requests
@@ -32,30 +32,39 @@ def api():
     except: rows=[]
     return dict(rows=rows,session=session)
 
-@action("xxx")
+@action("add_company",method="GET")
+@action.uses("add_company.html", db)
+def add():
+    db(db.company.id>0).delete()
+    db(db.license.id>0).delete()
+    rows = db(db.company).select()
+    return dict(rows=rows,session=session)
+
+@action("update_database",method="GET")
 @action.uses(db)
-def xxx():
+def update_database():
+    print('0')
     rows = db(db.company).select(orderby=db.company.id)
     last_row = rows.last()
     try:
         last_id = last_row.id
     except AttributeError:
-        last_id=0
+        last_id = 0
     finally:
+        print('1')
         x=Updates(last_id)
+        print('2')
         t=x.parser()
+        print(len(t[0]))
         x.compare(rows,t[0])
+        print('3')
         for i in range(len(t[0])):
             db['company'].insert(**t[0][i])
+        print('4')
         for i in range(len(t[1])):
             db['license'].insert(**t[1][i])
+        print('5')
     return 'Hi'
-
-@action("add_company",method="GET")
-@action.uses("add_company.html", db)
-def add():
-    rows = db(db.company).select()
-    return dict(rows=rows,session=session)
 
 @action("static/add_company",method="POST")
 @action.uses("add_company.html", db)
