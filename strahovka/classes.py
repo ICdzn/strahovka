@@ -1,16 +1,22 @@
 from bs4 import BeautifulSoup
 import requests
 
-class Updates:
+from .models import db
 
-    def __init__(self,last_id):
-        self.last_id=last_id
+class Updates:
 
     def parser(self):
 
+        rows = db(db.company).select(orderby=db.company.id)
+        last_row = rows.last()
+        try:
+            last_id = last_row.id
+        except AttributeError:
+            last_id = 0
+
         companies_info=[]
         licenses = []
-        id = self.last_id + 1
+        id = last_id + 1
 
         r = requests.post(
             'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU'
@@ -58,7 +64,7 @@ class Updates:
                         dict_company[td.get('headers')[0]] = td.text
                 companies_info.append(dict_company)
                 id += 1
-        return (companies_info,licenses)
+        return (companies_info,licenses,rows)
 
     def get_details(self,url):
         new_url = 'https://kis.nfp.gov.ua' + url
@@ -115,4 +121,54 @@ class Updates:
             changes = ''
             i+=1
         return changes
+
+
+class DatabaseAccess:
+
+    def get_codes(self, identifier):
+        data=[]
+        rows = db(db.company).select()
+        for row in rows:
+            for key in row.keys():
+                if str(identifier) in str(row[key]) and row.IM_NUMIDENT not in data:
+                    data.append(row.IM_NUMIDENT)
+                    break
+
+        return data
+
+    def get_full_name(self,code):
+
+        rows = db(db.company.IM_NUMIDENT == code).select()
+        name = rows[0].IAN_FULL_NAME
+
+        return name
+
+    def get_address(self,code):
+
+        rows = db(db.company.IM_NUMIDENT == code).select()
+        address = rows[0].F_ADR
+
+        return address
+
+    def get_director(self,code):
+
+        rows = db(db.company.IM_NUMIDENT == code).select()
+        director_name = rows[0].K_NAME
+
+        return director_name
+
+    def upload_companies(self, company_list):
+
+        for i in range(len(company_list)):
+            db['company'].insert(**company_list[i])
+
+        return "OK_company"
+
+    def upload_licenses(self, license_list):
+
+        for i in range(len(license_list)):
+            db['license'].insert(**license_list[i])
+
+        return "OK_license"
+
 

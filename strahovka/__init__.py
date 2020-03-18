@@ -1,24 +1,21 @@
-from py4web import action, request, response, Field, Session
+from py4web import action, request, Session
 from .models import db
-from py4web.utils.form import Form, FormStyleBulma
 from .common import names,tables
-from .classes import Updates
+from .classes import Updates,DatabaseAccess
 
-import requests
-from bs4 import BeautifulSoup
 import smtplib
 import pandas as pd
-import csv
 import os
 from py4web.utils.auth import Auth
 import datetime
+
 session=Session(secret='some key')
 auth=Auth(session,db)
 auth.enable()
 
 @action("index")
 @action.uses("company_detail.html", db)
-def api():
+def app_second():
     try:
         rows = db(db.company).select()
     except: rows=[]
@@ -26,11 +23,25 @@ def api():
 
 @action("license")
 @action.uses("license.html", db)
-def api():
+def app():
     try:
         rows = db(db.company).select()
     except: rows=[]
     return dict(rows=rows,session=session)
+
+@action("access")
+@action.uses(db)
+def access():
+    obj=DatabaseAccess()
+    codes=obj.get_codes('0692')
+    name = obj.get_full_name('20693867')
+    adr = obj.get_address('20693867')
+    di = obj.get_director('20693867')
+    print(codes)
+    print(name)
+    print(adr)
+    print(di)
+    return 'OK'
 
 @action("add_company",method="GET")
 @action.uses("add_company.html", db)
@@ -43,27 +54,12 @@ def add():
 @action("update_database",method="GET")
 @action.uses(db)
 def update_database():
-    print('0')
-    rows = db(db.company).select(orderby=db.company.id)
-    last_row = rows.last()
-    try:
-        last_id = last_row.id
-    except AttributeError:
-        last_id = 0
-    finally:
-        print('1')
-        x=Updates(last_id)
-        print('2')
-        t=x.parser()
-        print(len(t[0]))
-        x.compare(rows,t[0])
-        print('3')
-        for i in range(len(t[0])):
-            db['company'].insert(**t[0][i])
-        print('4')
-        for i in range(len(t[1])):
-            db['license'].insert(**t[1][i])
-        print('5')
+    obj=Updates()
+    tuple_obj=obj.parser()
+    obj.compare(tuple_obj[2],tuple_obj[0])
+    db_obj=DatabaseAccess()
+    db_obj.upload_companies(tuple_obj[0])
+    db_obj.upload_licenses(tuple_obj[1])
     return 'Hi'
 
 @action("static/add_company",method="POST")
@@ -207,7 +203,3 @@ def confirm_post():
 def auth():
     message='Hello'
     return dict(message=message)
-
-
-
-

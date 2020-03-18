@@ -1,6 +1,3 @@
-import os
-from py4web import DAL
-
 
 names = {'company': {'IAN_FULL_NAME': 'Найменування',
        'FIN_TYPE': 'Тип ФУ',

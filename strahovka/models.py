@@ -1,7 +1,6 @@
 from .common import db
 from py4web import Field
 import datetime
-from pydal.validators import *
 
 
 db.define_table('company',
