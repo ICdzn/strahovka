@@ -6,10 +6,10 @@ import datetime
 db.define_table('company',
                 Field('IAN_FULL_NAME'),
                 Field('FIN_TYPE'),
-                Field('IM_NUMIDENT'),
+                Field('IM_NUMIDENT', 'integer', length=8),
                 Field('IAN_RO_SERIA'),
                 Field('IAN_RO_CODE'),
-                Field('IAN_RO_DT',),
+                Field('IAN_RO_DT',type='datetime'),
                 Field('DIC_NAME'),
                 Field('F_ADR'),
                 Field('IA_PHONE_CODE'),
@@ -80,7 +80,11 @@ db.define_table('download',
 #пользователи компании
 db.define_table('company_user',
                 Field('user','reference auth_user'),
-                Field('company_id','reference company'))
+                Field('company_id','reference company'),
+                Field('full_name'),
+                Field('position'),
+                Field('mobile_number'),
+                )
 #журнал виплат
 db.define_table('payout',
                 Field('insurance_type'),

@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
+import re
+import datetime
 
 from .models import db
 
@@ -122,6 +124,17 @@ class Updates:
             i+=1
         return changes
 
+    def modify_data(self,companies):
+        for company in companies:
+            code=company['IM_NUMIDENT']
+            date=company['IAN_RO_DT']
+            match = re.findall(r'[!()_*&?.,><@]', code)
+            for i in match:
+                code=code.replace(i,'')
+            date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
+            company['IM_NUMIDENT']=code
+            company['IAN_RO_DT']=date_time_obj
+
 
 class DatabaseAccess:
 
@@ -156,6 +169,12 @@ class DatabaseAccess:
         director_name = rows[0].K_NAME
 
         return director_name
+
+    def get_update_data(self):
+        rows = db(db.company).select()
+        row = rows.last()
+        data = row.update_date
+        return data
 
     def upload_companies(self, company_list):
 

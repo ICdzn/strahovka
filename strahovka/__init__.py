@@ -54,13 +54,20 @@ def add():
 @action("update_database",method="GET")
 @action.uses(db)
 def update_database():
-    obj=Updates()
-    tuple_obj=obj.parser()
-    obj.compare(tuple_obj[2],tuple_obj[0])
-    db_obj=DatabaseAccess()
-    db_obj.upload_companies(tuple_obj[0])
-    db_obj.upload_licenses(tuple_obj[1])
-    return 'Hi'
+    db_obj = DatabaseAccess()
+    try:
+        data = db_obj.get_update_data()
+        now = datetime.datetime.now()
+    except:
+        data = now = datetime.datetime.now()
+    if (data-now).seconds < 3:
+        obj=Updates()
+        tuple_obj=obj.parser()
+        obj.compare(tuple_obj[2],tuple_obj[0])
+        obj.modify_data(tuple_obj[0])
+        print(db_obj.upload_companies(tuple_obj[0]))
+        print(db_obj.upload_licenses(tuple_obj[1]))
+    return 'Hello'
 
 @action("static/add_company",method="POST")
 @action.uses("add_company.html", db)
