@@ -49,24 +49,34 @@ def add():
     db(db.company.id>0).delete()
     db(db.license.id>0).delete()
     rows = db(db.company).select()
-    return dict(rows=rows,session=session)
+    row=rows.last()
+    user_name = globals().get('session').get('user').get('id')
+    print(user_name)
+    user_info = db(db.company_user.user == user_name).select()
+    for user in user_info:
+        print(user)
+    return dict(rows=rows,session=session, user_info=user_info)
 
 @action("update_database",method="GET")
 @action.uses(db)
 def update_database():
     db_obj = DatabaseAccess()
+    obj = Updates()
     try:
         data = db_obj.get_update_data()
         now = datetime.datetime.now()
-    except:
-        data = now = datetime.datetime.now()
-    if (data-now).seconds < 3:
-        obj=Updates()
+        if (now - data).seconds > 10000:
+            tuple_obj = obj.parser()
+            obj.compare(tuple_obj[2], tuple_obj[0])
+            obj.modify_data(tuple_obj[0], tuple_obj[1])
+            print(db_obj.upload_companies(tuple_obj[0])+'1')
+            print(db_obj.upload_licenses(tuple_obj[1])+'1')
+    except AttributeError:
         tuple_obj=obj.parser()
         obj.compare(tuple_obj[2],tuple_obj[0])
-        obj.modify_data(tuple_obj[0])
-        print(db_obj.upload_companies(tuple_obj[0]))
-        print(db_obj.upload_licenses(tuple_obj[1]))
+        obj.modify_data(tuple_obj[0],tuple_obj[1])
+        print(db_obj.upload_companies(tuple_obj[0])+'2')
+        print(db_obj.upload_licenses(tuple_obj[1])+"2")
     return 'Hello'
 
 @action("static/add_company",method="POST")
@@ -81,8 +91,12 @@ def add():
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)
 def add():
-    rows = db(db.company_user.user == 2).select()
-    return dict(rows=rows)
+    # obj=Updates()
+    # tuple_obj = obj.parser()
+    # print(tuple_obj[1])
+    rows = db(db.auth_user).select()
+    rows2 = db(db.company_user).select()
+    return dict(rows=rows,rows2=rows2)
 
 @action("upload",method="GET")
 @action.uses("upload_file.html")

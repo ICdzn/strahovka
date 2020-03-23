@@ -1,4 +1,5 @@
 [[extend "layout.html"]]
+[[if globals().get('session').get('user'):]]
 Укажите, к какой компании вы относитесь:
 <div>
 <select style="width:200px;"><option value="%null%"></option>
@@ -30,3 +31,18 @@ $(document).ready(function () {
                     });
                 });
 </script>
+
+Укажите вашу дополнительную информацию:
+[[=user_info]]
+<div>
+    [[for info in user_info:]]
+        <input value="info">[[=info]]
+    [[pass]]
+</div>
+<div>
+<!--    <button id="add">Добавить</button>-->
+<!--    <label id="vse"></label><br>-->
+</div>
+[[else:]]
+Вы не зарегестрированы, поэтому не можете загрузить файл
+[[pass]]

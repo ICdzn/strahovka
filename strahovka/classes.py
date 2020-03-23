@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import datetime
+import random
+from fake_useragent import UserAgent
 
 from .models import db
 
@@ -19,11 +21,11 @@ class Updates:
         companies_info=[]
         licenses = []
         id = last_id + 1
-
+        headers = {'user-agent': UserAgent().random}
         r = requests.post(
-            'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU'
-            '=&p_REGNO=&p_FULLNAME=&p_IM_ST=%25null%25&p_IRL_FT=3&p_NFS=0&p_SVIDOTSTVO_SERIES=&p_SVIDOTSTVO_NO='
-            '&p_ACTDATE_FROM=&p_ACTDATE_TO=&p_ILD_NUMBER=&pagenum=1&btn_all=1&__VIEWSTATEGENERATOR=EC5CD28C')
+            'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU='
+            '&p_REGNO=&p_FULLNAME=&p_IM_ST=%25null%25&p_IRL_FT=3&p_NFS=0&p_SVIDOTSTVO_SERIES=&p_SVIDOTSTVO_NO=&p_ACTDATE'
+            '_FROM=&p_ACTDATE_TO=&p_ILD_NUMBER=&search=1&pagenum=-1&__VIEWSTATEGENERATOR=EC5CD28C', headers = headers)
 
         html = r.text
         soup = BeautifulSoup(html,'lxml')
@@ -70,7 +72,10 @@ class Updates:
 
     def get_details(self,url):
         new_url = 'https://kis.nfp.gov.ua' + url
-        html = requests.get(new_url).text
+        headers = {'user-agent': UserAgent().random}
+
+        r = requests.get(new_url,headers=headers)
+        html = r.text
         soup = BeautifulSoup(html, 'lxml')
 
         abbreviation=soup.find(text='Скорочене найменування заявника (з установчих документів, у разі наявності)').parent.findNext('td').contents[0]
@@ -82,7 +87,9 @@ class Updates:
         just_names = []
 
         new_url = 'https://kis.nfp.gov.ua' + url
-        html = requests.get(new_url).text
+        headers = {'user-agent': UserAgent().random}
+        r = requests.get(new_url, headers=headers)
+        html = r.text
         soup = BeautifulSoup(html, 'lxml')
 
         table = soup.find('table', class_='grid zebra')
@@ -124,7 +131,7 @@ class Updates:
             i+=1
         return changes
 
-    def modify_data(self,companies):
+    def modify_data(self,companies,licenses):
         for company in companies:
             code=company['IM_NUMIDENT']
             date=company['IAN_RO_DT']
@@ -134,6 +141,19 @@ class Updates:
             date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
             company['IM_NUMIDENT']=code
             company['IAN_RO_DT']=date_time_obj
+        for license_i in licenses:
+            for key in license_i:
+                if 'DATE' in key:
+                    data = license_i[key]
+                    match = re.findall(r'[!(-)_*&?,><@]', data)
+                    for i in match:
+                        data = data.replace(i, '')
+                    data = data.strip()
+                    try:
+                        date_time_obj = datetime.datetime.strptime(data, '%d.%m.%Y')
+                    except ValueError:
+                        date_time_obj = ''
+                    license_i[key] = date_time_obj
 
 
 class DatabaseAccess:
