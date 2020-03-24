@@ -2,6 +2,7 @@ from py4web import action, request, Session
 from .models import db
 from .common import names,tables
 from .classes import Updates,DatabaseAccess
+from py4web.utils.form import Form, FormStyleBulma
 
 import smtplib
 import pandas as pd
@@ -43,19 +44,16 @@ def access():
     print(di)
     return 'OK'
 
-@action("add_company",method="GET")
+@action("edit",method=["GET","POST"])
 @action.uses("add_company.html", db)
 def add():
-    db(db.company.id>0).delete()
-    db(db.license.id>0).delete()
+    # db(db.company.id>0).delete()
+    # db(db.license.id>0).delete()
     rows = db(db.company).select()
-    row=rows.last()
-    user_name = globals().get('session').get('user').get('id')
-    print(user_name)
-    user_info = db(db.company_user.user == user_name).select()
-    for user in user_info:
-        print(user)
-    return dict(rows=rows,session=session, user_info=user_info)
+    user_id = globals().get('session').get('user').get('id')
+    user = db(db.auth_user.id==user_id).select().first()
+    form = Form(db.auth_user, user_id, deletable=False, formstyle=FormStyleBulma)
+    return dict(rows=rows,user=user,session=session,form=form)
 
 @action("update_database",method="GET")
 @action.uses(db)
@@ -85,8 +83,21 @@ def add():
     rows = db(db.company).select()
     choice_id=request.POST.get('choice_id')
     user_name = globals().get('session').get('user').get('id')
+    user = db(db.auth_user.id == user_name).select().first()
     db['company_user'].insert(user=user_name,company_id=choice_id)
-    return dict(rows=rows,session=session)
+    form = Form(db.auth_user, user_name, deletable=False, formstyle=FormStyleBulma)
+    return dict(rows=rows,user=user, form = form,session=session)
+
+@action("static/delete_company",method="POST")
+@action.uses("add_company.html", db)
+def add():
+    rows = db(db.company).select()
+    choice_id=request.POST.get('choice_id')
+    user_name = globals().get('session').get('user').get('id')
+    user = db(db.auth_user.id == user_name).select().first()
+    db(db.company_user.user == user_name and db.company_user.company_id == choice_id).delete()
+    form = Form(db.auth_user, user_name, deletable=False, formstyle=FormStyleBulma)
+    return dict(rows=rows,user=user, form = form,session=session)
 
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)

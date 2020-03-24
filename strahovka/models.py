@@ -81,8 +81,6 @@ db.define_table('download',
 db.define_table('company_user',
                 Field('user','reference auth_user'),
                 Field('company_id','reference company'),
-                Field('position'),
-                Field('mobile_number'),
                 )
 #журнал виплат
 db.define_table('payout',
