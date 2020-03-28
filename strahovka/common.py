@@ -1,3 +1,12 @@
+import os
+import sys
+import logging
+from py4web import Session, Cache, Translator, DAL, Field
+from py4web.utils.mailer import Mailer
+from py4web.utils.auth import Auth
+from py4web.utils.tags import Tags
+from py4web.utils.factories import ActionFactory, ButtonFactory
+from . import settings
 
 names = {'company': {'IAN_FULL_NAME': 'Найменування',
        'FIN_TYPE': 'Тип ФУ',
@@ -37,16 +46,6 @@ names = {'company': {'IAN_FULL_NAME': 'Найменування',
 
 tables={'1': 'company','2': 'type','3': 'payout'}
 
-import os
-import sys
-import logging
-from py4web import Session, Cache, Translator, DAL, Field
-from py4web.utils.mailer import Mailer
-from py4web.utils.auth import Auth
-from py4web.utils.tags import Tags
-from py4web.utils.factories import ActionFactory, ButtonFactory
-from . import settings
-
 # implement custom loggers form settings.LOGGERS
 logger = logging.getLogger("py4web:" + settings.APP_NAME)
 formatter = logging.Formatter(
@@ -63,7 +62,7 @@ for item in settings.LOGGERS:
     logger.addHandler(handler)
 
 
-db = DAL('sqlite://models_change5.db',folder=os.path.join(os.path.dirname(__file__), "databases"))
+db = DAL('sqlite://models_change8.db',folder=os.path.join(os.path.dirname(__file__), "databases"))
 # define global objects that may or may not be used by th actions
 cache = Cache(size=1000)
 T = Translator(settings.T_FOLDER)

@@ -5,7 +5,7 @@
         <h4 class="title is-3">Укажите, к какой компании вы относитесь:</h4>
 <select id="select_first" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
     [[for row in rows:]]
-        <option value="[[=row.id]]">[[=row.IAN_FULL_NAME]]</option>
+        <option value="[[=row.id]]">[[=row.name]]</option>
     [[pass]]
 </select>
     <button id="add">Добавить</button>
@@ -14,30 +14,45 @@
     <h4 class="title is-3" style="margin-top:40px;">Укажите, какую компанию вы хотите удалить из своего списка</h4>
 <select id="select_second" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
     [[for row in rows:]]
-        <option value="[[=row.id]]">[[=row.IAN_FULL_NAME]]</option>
+        <option value="[[=row.id]]">[[=row.name]]</option>
     [[pass]]
 </select>
     <button id="delete_company">Удалить</button>
     <label id="ok_delete"></label><br>
 
-    <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте: </h1>
+    <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте пользователя: </h1>
+    <ul>
+    <li>ID: [[=auth_user.id]]</li>
+    <li>Username: [[=auth_user.username]]</li>
+    <li>Email: [[=auth_user.email]]</li>
+    <li>First name: [[=auth_user.first_name]]</li>
+    <li>Last name: [[=auth_user.last_name]]</li>
+    </ul>
+
+    <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте контактного лица компании: </h1>
     <ul>
     <li>ID: [[=user.id]]</li>
-    <li>Username: [[=user.username]]</li>
-    <li>Email: [[=user.email]]</li>
     <li>First name: [[=user.first_name]]</li>
     <li>Last name: [[=user.last_name]]</li>
-        <li><strong>Компании, к которым вы относитесь:</strong></li>
-        [[for user_name in user.company_user.select():]]
-        <li>[[=user_name.company_id.IAN_FULL_NAME]]</li>
+    <li>Mobile phone: [[=user.mobile_phone]]</li>
+    <li>Work phone: [[=user.work_phone]]</li>
+    <li>Email 1: [[=user.email1]]</li>
+    <li>Email 2: [[=user.email2]]</li>
+    <li>Компании, к которым вы относитесь:</li>
+        [[for company in user.company_user.select():]]
+            <li>[[=company.company_identifier.name]]</li>
         [[pass]]
     </ul>
 </div>
 
 <div>
-<h2 class="title">Изменить свои данные: </h2>
+<h2 class="title">Изменить свои данные пользователя сайта: </h2>
 
-[[=form]]
+[[=form1]]
+
+<h2 class="title">Изменить свои данные контактного лица компании: </h2>
+
+[[=form2]]
 
 
 </div>

@@ -30,6 +30,7 @@ tr:hover td {color: black;}
 <table cellpadding="1" cellspacing="0" class="grid zebra">
                         <tr >
                             <th id="ID">ID</th>
+                            <th id="COMPANY_IDENTIFIER" >Company Identifier</th>
                             <th id="IAN_FULL_NAME">Найменування</th>
                             <th id="FIN_TYPE">Тип ФУ</th>
                             <th id="IM_NUMIDENT">Код ЄДРПОУ</th>
@@ -51,6 +52,7 @@ tr:hover td {color: black;}
   [[for row in rows:]]
   <tr>
                         <td headers="ID" >[[=row.id]]</td>
+                        <td headers="COMPANY_IDENTIFIER" >[[=row.company_identifier]]</td>
                         <td headers="IAN_FULL_NAME" >[[=row.IAN_FULL_NAME]]"</td>
                         <td headers="FIN_TYPE" >[[=row.FIN_TYPE]]</td>
                         <td headers="IM_NUMIDENT" >[[=row.IM_NUMIDENT]]</td>

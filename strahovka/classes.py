@@ -131,16 +131,84 @@ class Updates:
             i+=1
         return changes
 
-    def modify_data(self,companies,licenses):
+    def company_identifier_update(self):
+        companies_id=[]
+        rows = db(db.company_identifier).select(orderby=db.company_identifier.id)
+        last_row = rows.last()
+        try:
+            last_id = last_row.id
+        except AttributeError:
+            last_id = 1
+
+        headers = {'user-agent': UserAgent().random}
+        r = requests.post(
+            'https://kis.nfp.gov.ua/?__VIEWSTATE=%2FwEPDwUKMjA0NDA5OTAxN2RkYp6DC6WJ1c7OZ5ZQtR%2FzO%2BgjVTw%3D&p_EDRPOU='
+            '&p_REGNO=&p_FULLNAME=&p_IM_ST=%25null%25&p_IRL_FT=3&p_NFS=0&p_SVIDOTSTVO_SERIES=&p_SVIDOTSTVO_NO=&p_ACTDATE'
+            '_FROM=&p_ACTDATE_TO=&p_ILD_NUMBER=&search=1&pagenum=-1&__VIEWSTATEGENERATOR=EC5CD28C', headers=headers)
+
+        html = r.text
+        soup = BeautifulSoup(html, 'lxml')
+
+        table = soup.find('table', class_='grid zebra')
+        tr_list = table.find_all('tr')
+        if last_id!=1:
+            for tr in tr_list:
+                if tr.find_all('td'):
+                    td_list = tr.find_all('td')
+                    dict_company = {}
+                    for td in td_list:
+                        counter=0
+                        if td.get('headers')[0] == "IAN_FULL_NAME":
+                            for row in rows:
+                                if td.text==row.name:
+                                    counter=1
+                            if counter!=1:
+                                dict_company['id']=last_id+1
+                                dict_company["name"]=td.text
+                        elif td.get('headers')[0] == "IM_NUMIDENT":
+                            for row in rows:
+                                if td.text==row.code:
+                                    counter=1
+                            if counter!=1:
+                                dict_company["code"]=td.text
+                        else: continue
+                    if dict_company:
+                        companies_id.append(dict_company)
+        else:
+            for tr in tr_list:
+                if tr.find_all('td'):
+                    td_list = tr.find_all('td')
+                    dict_company = {'id':last_id}
+                    for td in td_list:
+                        if td.get('headers')[0] == "IAN_FULL_NAME":
+                            dict_company["name"] = td.text
+                        elif td.get('headers')[0] == "IM_NUMIDENT":
+                            dict_company["code"] = td.text
+                        else: continue
+                    last_id+=1
+                    companies_id.append(dict_company)
+        return companies_id
+
+    def add_reference(self,companies):
+        company_identifiers = db(db.company_identifier).select(orderby=db.company_identifier.id)
         for company in companies:
-            code=company['IM_NUMIDENT']
-            date=company['IAN_RO_DT']
+            for company_identifier in company_identifiers:
+                if company['IM_NUMIDENT'] == company_identifier.code:
+                    company['company_identifier']=company_identifier.id
+class DataModify:
+
+    def modify_company(self, companies):
+        for company in companies:
+            code = company['IM_NUMIDENT']
+            date = company['IAN_RO_DT']
             match = re.findall(r'[!()_*&?.,><@]', code)
             for i in match:
-                code=code.replace(i,'')
+                code = code.replace(i, '')
             date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
-            company['IM_NUMIDENT']=code
-            company['IAN_RO_DT']=date_time_obj
+            company['IM_NUMIDENT'] = code
+            company['IAN_RO_DT'] = date_time_obj
+
+    def modify_license(self,licenses):
         for license_i in licenses:
             for key in license_i:
                 if 'DATE' in key:
@@ -155,6 +223,13 @@ class Updates:
                         date_time_obj = ''
                     license_i[key] = date_time_obj
 
+    def modify_company_identifier(self, company_identifiers):
+        for id in company_identifiers:
+            code = id['code']
+            match = re.findall(r'[!()_*&?.,><@]', code)
+            for i in match:
+                code = code.replace(i, '')
+            id['code'] = code
 
 class DatabaseAccess:
 
@@ -210,4 +285,10 @@ class DatabaseAccess:
 
         return "OK_license"
 
+    def upload_companies_id(self, company_id_list):
+
+        for i in range(len(company_id_list)):
+            db['company_identifier'].insert(**company_id_list[i])
+
+        return "OK_company_identifier"
 
