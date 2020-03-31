@@ -49,15 +49,22 @@ def access():
 def add():
     # db(db.company.id>0).delete()
     # db(db.license.id>0).delete()
-    user_id = globals().get('session').get('user').get('id')
-    user = db(db.user.auth_user == user_id).select().first()
-    if not user:
-        db['user'].insert(auth_user=user_id)
-    rows = db(db.company_identifier).select()
-    auth_user = db(db.auth_user.id==user_id).select().first()
-    user = db(db.user.auth_user == user_id).select().first()
-    form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
-    form2 = Form(db.user, user, deletable=False, formstyle=FormStyleBulma)
+    try:
+        user_id = globals().get('session').get('user').get('id')
+        user = db(db.user.auth_user == user_id).select().first()
+        if not user:
+            db['user'].insert(auth_user=user_id)
+        rows = db(db.company_identifier).select()
+        auth_user = db(db.auth_user.id==user_id).select().first()
+        user = db(db.user.auth_user == user_id).select().first()
+        form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
+        form2 = Form(db.user, user, deletable=False, formstyle=FormStyleBulma)
+    except AttributeError:
+        user=None
+        rows=None
+        auth_user=None
+        form1=None
+        form2=None
     return dict(rows=rows,auth_user=auth_user,user=user,session=session,form1=form1, form2=form2)
 
 @action("update_database",method="GET")
@@ -104,26 +111,20 @@ def update_database():
 @action("static/add_company",method="POST")
 @action.uses("add_company.html", db)
 def add():
-    rows = db(db.company_identifier).select()
+    db_obj=DatabaseAccess()
+    rows=db_obj.get_company_identifiers()
     choice_id=request.POST.get('choice_id')
+    action = request.POST.get('action')
     user_id = globals().get('session').get('user').get('id')
-    user = db(db.user.auth_user == user_id).select().first()
-    auth_user = db(db.auth_user.id == user_id).select().first()
-    db['company_user'].insert(user=user,company_identifier=choice_id)
+    user = db_obj.get_user(user_id)
+    auth_user = db_obj.get_auth_user(user_id)
+    if action=='add':
+        db_obj.add_company_user(user,choice_id)
+    elif action=='delete':
+        db_obj.delete_company_user(user,choice_id)
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
     form2 = Form(db.user, user, deletable=False, formstyle=FormStyleBulma)
     dict(rows=rows,auth_user=auth_user,user=user,session=session,form1=form1, form2=form2)
-
-@action("static/delete_company",method="POST")
-@action.uses("add_company.html", db)
-def add():
-    rows = db(db.company).select()
-    choice_id=request.POST.get('choice_id')
-    user_name = globals().get('session').get('user').get('id')
-    user = db(db.auth_user.id == user_name).select().first()
-    db(db.company_user.user == user_name and db.company_user.company_id == choice_id).delete()
-    form = Form(db.auth_user, user_name, deletable=False, formstyle=FormStyleBulma)
-    return dict(rows=rows,user=user, form = form,session=session)
 
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)

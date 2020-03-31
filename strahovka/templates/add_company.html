@@ -1,5 +1,5 @@
 [[extend "layout.html"]]
-
+[[if globals().get('session').get('user'):]]
 <div class="wrapper">
 <div>
         <h4 class="title is-3">Укажите, к какой компании вы относитесь:</h4>
@@ -75,7 +75,7 @@ $(document).ready(function () {
                 console.log(choice_id);
                         $.ajax({
                             type:"POST",
-                            data: {'choice_id':choice_id},
+                            data: {'choice_id':choice_id, 'action':'add'},
                             url: 'add_company',
                             success: function(){$(ok_add).text('Добавлено')}
                             });
@@ -93,8 +93,8 @@ $(document).ready(function () {
                 console.log(choice_id);
                         $.ajax({
                             type:"POST",
-                            data: {'choice_id':choice_id},
-                            url: 'delete_company',
+                            data: {'choice_id':choice_id, 'action':'delete'},
+                            url: 'add_company',
                             success: function(){$(ok_delete).text('Удалено')}
                             });
                         });
@@ -107,3 +107,6 @@ $(document).ready(function () {
     $('.js-example-basic-single').select2();
 });
 </script>
+[[else:]]
+Вы не зарегестрированы или не вошли в аккаунт
+[[pass]]

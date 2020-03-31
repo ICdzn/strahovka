@@ -233,6 +233,24 @@ class DataModify:
 
 class DatabaseAccess:
 
+    def get_company_identifiers(self):
+        rows = db(db.company_identifier).select()
+        return rows
+
+    def get_user(self,id):
+        user=db(db.user.auth_user == id).select().first()
+        return user
+
+    def get_auth_user(self,id):
+        auth_user=db(db.auth_user.id == id).select().first()
+        return auth_user
+
+    def add_company_user(self,user,company_identifier):
+        db['company_user'].insert(user=user, company_identifier=company_identifier)
+
+    def delete_company_user(self,user_id,company_identifier):
+        db(db.company_user.user == user_id and db.company_user.company_identifier == company_identifier).delete()
+
     def get_codes(self, identifier):
         data=[]
         rows = db(db.company).select()
