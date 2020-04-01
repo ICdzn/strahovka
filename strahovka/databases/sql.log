@@ -2754,3 +2754,325 @@ CREATE TABLE "type"(
     "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
 );
 success!
+success!
+success!
+success!
+timestamp: 2020-04-01T17:27:16.337080
+CREATE TABLE "auth_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "username" CHAR(512) UNIQUE,
+    "email" CHAR(512) UNIQUE,
+    "password" CHAR(512),
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "sso_id" CHAR(512),
+    "action_token" CHAR(512)
+);
+success!
+timestamp: 2020-04-01T17:27:16.564834
+CREATE TABLE "auth_user_tag_groups"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "path" CHAR(512),
+    "record_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.616916
+CREATE TABLE "company_identifier"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "code" INTEGER UNIQUE
+);
+success!
+timestamp: 2020-04-01T17:27:16.680375
+CREATE TABLE "company"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "IAN_FULL_NAME" CHAR(512),
+    "FIN_TYPE" CHAR(512),
+    "IM_NUMIDENT" INTEGER,
+    "IAN_RO_SERIA" CHAR(512),
+    "IAN_RO_CODE" INTEGER,
+    "IAN_RO_DT" TIMESTAMP,
+    "DIC_NAME" CHAR(512),
+    "F_ADR" CHAR(512),
+    "IA_PHONE_CODE" INTEGER,
+    "IA_PHONE" CHAR(512),
+    "IA_EMAIL" CHAR(512),
+    "IND_OBL" CHAR(512),
+    "K_NAME" CHAR(512),
+    "abbreviation" CHAR(512),
+    "position" CHAR(512),
+    "update_date" TIMESTAMP,
+    "changes" CHAR(512),
+    "company_identifier" INTEGER REFERENCES "company_identifier" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.762681
+CREATE TABLE "license"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "NFS_CODE" DOUBLE,
+    "NFS_NAME" CHAR(512),
+    "LT_NNR2" CHAR(512),
+    "LT_NAME" CHAR(512),
+    "IL_NAME" CHAR(512),
+    "IL_NUMBER" CHAR(512),
+    "IL_DATE" TIMESTAMP,
+    "IL_DATE_BEGIN" TIMESTAMP,
+    "IL_DATE_END" TIMESTAMP,
+    "IL_DATE_NULLIFY" TIMESTAMP,
+    "IL_TERM" CHAR(512),
+    "IL_DUPLICAT_DATE" TIMESTAMP,
+    "IL_DUPLICAT_NO" CHAR(512),
+    "LT_NNR_DUPL" CHAR(512),
+    "IL_REREG_DATE" TIMESTAMP,
+    "IL_REREG_NO" CHAR(512),
+    "LT_NNR_REREG" CHAR(512),
+    "IL_SUSPEND_DATE" TIMESTAMP,
+    "LT_NNR_SUSPEND" CHAR(512),
+    "IL_RESUME_DATE" TIMESTAMP,
+    "LT_NNR_RESUME" CHAR(512),
+    "IL_NULLIFY_NO" CHAR(512),
+    "LT_BOOL" CHAR(512),
+    "IL_APPOINTMENT" CHAR(512),
+    "ILD_LRO_DATE" TIMESTAMP,
+    "ILD_AOC_NUM" CHAR(512),
+    "ILD_AOC_DATE" TIMESTAMP,
+    "ILD_AOSRS_NUM" CHAR(512),
+    "ILD_AOSRS_DATE" TIMESTAMP,
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.812953
+CREATE TABLE "unit"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "IM_NUMIDENT" CHAR(512),
+    "IAN_FULL_NAME" INTEGER,
+    "IA_FULL" CHAR(512),
+    "IA_PHONE_CODE" CHAR(512),
+    "IA_PHONE" CHAR(512),
+    "IND_OBL" CHAR(512),
+    "FIO" CHAR(512),
+    "ST_NAME" CHAR(512),
+    "IM" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.863587
+CREATE TABLE "user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "mobile_phone" CHAR(512),
+    "work_phone" CHAR(512),
+    "email1" CHAR(512),
+    "email2" CHAR(512),
+    "auth_user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.914279
+CREATE TABLE "download"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "data" CHAR(512),
+    "quarter_num" CHAR(512),
+    "user" INTEGER REFERENCES "user" ("id") ON DELETE CASCADE  ,
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:16.965050
+CREATE TABLE "company_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "user" ("id") ON DELETE CASCADE  ,
+    "company_identifier" INTEGER REFERENCES "company_identifier" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:17.017733
+CREATE TABLE "payout"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "insurance_type" CHAR(512),
+    "contract_num" CHAR(512),
+    "case_num" CHAR(512),
+    "insurance_case_date" CHAR(512),
+    "statement_date" CHAR(512),
+    "requirement_date" CHAR(512),
+    "insurance_act_date" CHAR(512),
+    "insurance_payment_date" CHAR(512),
+    "insurance_payment_size" CHAR(512),
+    "settlement_costs" CHAR(512),
+    "reserve_size" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:27:17.079643
+CREATE TABLE "type"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "gross_receipts" CHAR(512),
+    "from_residents" CHAR(512),
+    "rfrom_insurers_individuals" CHAR(512),
+    "rfrom_insurers_legal_entities" CHAR(512),
+    "rfrom_reinsurers" CHAR(512),
+    "from_non_residents" CHAR(512),
+    "nfrom_insurers_individuals" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+success!
+timestamp: 2020-04-01T17:44:50.977649
+CREATE TABLE "auth_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "username" CHAR(512) UNIQUE,
+    "email" CHAR(512) UNIQUE,
+    "password" CHAR(512),
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "sso_id" CHAR(512),
+    "action_token" CHAR(512)
+);
+success!
+timestamp: 2020-04-01T17:44:51.166965
+CREATE TABLE "auth_user_tag_groups"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "path" CHAR(512),
+    "record_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:51.219987
+CREATE TABLE "company_identifier"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "code" INTEGER UNIQUE
+);
+success!
+timestamp: 2020-04-01T17:44:51.330153
+CREATE TABLE "company"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "IAN_FULL_NAME" CHAR(512),
+    "FIN_TYPE" CHAR(512),
+    "IM_NUMIDENT" INTEGER,
+    "IAN_RO_SERIA" CHAR(512),
+    "IAN_RO_CODE" INTEGER,
+    "IAN_RO_DT" TIMESTAMP,
+    "DIC_NAME" CHAR(512),
+    "F_ADR" CHAR(512),
+    "IA_PHONE_CODE" CHAR(512),
+    "IA_PHONE" CHAR(512),
+    "IA_EMAIL" CHAR(512),
+    "IND_OBL" CHAR(512),
+    "K_NAME" CHAR(512),
+    "abbreviation" CHAR(512),
+    "position" CHAR(512),
+    "update_date" TIMESTAMP,
+    "changes" CHAR(512),
+    "company_identifier" INTEGER REFERENCES "company_identifier" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:51.612258
+CREATE TABLE "license"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "NFS_CODE" DOUBLE,
+    "NFS_NAME" CHAR(512),
+    "LT_NNR2" CHAR(512),
+    "LT_NAME" CHAR(512),
+    "IL_NAME" CHAR(512),
+    "IL_NUMBER" CHAR(512),
+    "IL_DATE" TIMESTAMP,
+    "IL_DATE_BEGIN" TIMESTAMP,
+    "IL_DATE_END" TIMESTAMP,
+    "IL_DATE_NULLIFY" TIMESTAMP,
+    "IL_TERM" CHAR(512),
+    "IL_DUPLICAT_DATE" TIMESTAMP,
+    "IL_DUPLICAT_NO" CHAR(512),
+    "LT_NNR_DUPL" CHAR(512),
+    "IL_REREG_DATE" TIMESTAMP,
+    "IL_REREG_NO" CHAR(512),
+    "LT_NNR_REREG" CHAR(512),
+    "IL_SUSPEND_DATE" TIMESTAMP,
+    "LT_NNR_SUSPEND" CHAR(512),
+    "IL_RESUME_DATE" TIMESTAMP,
+    "LT_NNR_RESUME" CHAR(512),
+    "IL_NULLIFY_NO" CHAR(512),
+    "LT_BOOL" CHAR(512),
+    "IL_APPOINTMENT" CHAR(512),
+    "ILD_LRO_DATE" TIMESTAMP,
+    "ILD_AOC_NUM" CHAR(512),
+    "ILD_AOC_DATE" TIMESTAMP,
+    "ILD_AOSRS_NUM" CHAR(512),
+    "ILD_AOSRS_DATE" TIMESTAMP,
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:51.801003
+CREATE TABLE "unit"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "IM_NUMIDENT" CHAR(512),
+    "IAN_FULL_NAME" INTEGER,
+    "IA_FULL" CHAR(512),
+    "IA_PHONE_CODE" CHAR(512),
+    "IA_PHONE" CHAR(512),
+    "IND_OBL" CHAR(512),
+    "FIO" CHAR(512),
+    "ST_NAME" CHAR(512),
+    "IM" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:51.960744
+CREATE TABLE "user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "mobile_phone" CHAR(512),
+    "work_phone" CHAR(512),
+    "email1" CHAR(512),
+    "email2" CHAR(512),
+    "auth_user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:52.015779
+CREATE TABLE "download"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "data" CHAR(512),
+    "quarter_num" CHAR(512),
+    "user" INTEGER REFERENCES "user" ("id") ON DELETE CASCADE  ,
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:52.066470
+CREATE TABLE "company_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "user" ("id") ON DELETE CASCADE  ,
+    "company_identifier" INTEGER REFERENCES "company_identifier" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:52.118474
+CREATE TABLE "payout"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "insurance_type" CHAR(512),
+    "contract_num" CHAR(512),
+    "case_num" CHAR(512),
+    "insurance_case_date" CHAR(512),
+    "statement_date" CHAR(512),
+    "requirement_date" CHAR(512),
+    "insurance_act_date" CHAR(512),
+    "insurance_payment_date" CHAR(512),
+    "insurance_payment_size" CHAR(512),
+    "settlement_costs" CHAR(512),
+    "reserve_size" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-01T17:44:52.168376
+CREATE TABLE "type"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(512),
+    "gross_receipts" CHAR(512),
+    "from_residents" CHAR(512),
+    "rfrom_insurers_individuals" CHAR(512),
+    "rfrom_insurers_legal_entities" CHAR(512),
+    "rfrom_reinsurers" CHAR(512),
+    "from_non_residents" CHAR(512),
+    "nfrom_insurers_individuals" CHAR(512),
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  
+);
+success!

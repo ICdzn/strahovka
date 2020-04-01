@@ -199,20 +199,30 @@ class DataModify:
 
     def modify_company(self, companies):
         for company in companies:
-            code = company['IM_NUMIDENT']
-            date = company['IAN_RO_DT']
-            match = re.findall(r'[!()_*&?.,><@]', code)
-            for i in match:
-                code = code.replace(i, '')
-            date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
-            company['IM_NUMIDENT'] = code
-            company['IAN_RO_DT'] = date_time_obj
+            for key in company:
+                if 'IM_NUMIDENT' in key or 'IAN_RO_CODE' in key:
+                    code = company[key]
+                    match = re.findall(r'[!()_*&?.,><@]', code)
+                    for i in match:
+                        code = code.replace(i, '')
+                    try:
+                        code_len = len(code.strip())
+                        int_code = int(code)
+                        if 'IM_NUMIDENT' in key and code_len != 8:
+                            int_code = None
+                    except ValueError:
+                        int_code = None
+                    company[key] = int_code
+                elif 'IAN_RO_DT' in key:
+                    date = company['IAN_RO_DT']
+                    date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
+                    company['IAN_RO_DT'] = date_time_obj
 
     def modify_license(self,licenses):
-        for license_i in licenses:
-            for key in license_i:
+        for license in licenses:
+            for key in license:
                 if 'DATE' in key:
-                    data = license_i[key]
+                    data = license[key]
                     match = re.findall(r'[!(-)_*&?,><@]', data)
                     for i in match:
                         data = data.replace(i, '')
@@ -221,15 +231,29 @@ class DataModify:
                         date_time_obj = datetime.datetime.strptime(data, '%d.%m.%Y')
                     except ValueError:
                         date_time_obj = ''
-                    license_i[key] = date_time_obj
+                    license[key] = date_time_obj
+                elif 'NFS_CODE' in key:
+                    nfs_code=license[key]
+                    try:
+                        float_nfs_code=float(nfs_code)
+                    except ValueError:
+                        float_nfs_code=None
+                    license[key] = float_nfs_code
 
     def modify_company_identifier(self, company_identifiers):
-        for id in company_identifiers:
-            code = id['code']
+        for company_identifier in company_identifiers:
+            code = company_identifier['code']
             match = re.findall(r'[!()_*&?.,><@]', code)
             for i in match:
                 code = code.replace(i, '')
-            id['code'] = code
+            try:
+                code_len=len(code.strip())
+                int_code=int(code)
+                if code_len!=8:
+                    int_code=None
+            except ValueError:
+                int_code=None
+            company_identifier['code'] = int_code
 
 class DatabaseAccess:
 

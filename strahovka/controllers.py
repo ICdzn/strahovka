@@ -133,7 +133,8 @@ def add():
     # tuple_obj = obj.parser()
     # print(tuple_obj[1])
     rows = db(db.user).select()
-    return dict(rows=rows)
+    rows2=db(db.company_identifier).select()
+    return dict(rows=rows,rows2=rows2)
 
 @action("upload",method="GET")
 @action.uses("upload_file.html")

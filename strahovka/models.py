@@ -6,14 +6,14 @@ import datetime
 #идентификаторы компании
 db.define_table('company_identifier',
                 Field('name'),
-                Field('code'))
+                Field('code',type='integer',length=8,unique=True))
 
 db.define_table('company',
                 Field('IAN_FULL_NAME'),
                 Field('FIN_TYPE'),
-                Field('IM_NUMIDENT', 'integer', length=8),
+                Field('IM_NUMIDENT', type='integer', length=8),
                 Field('IAN_RO_SERIA'),
-                Field('IAN_RO_CODE'),
+                Field('IAN_RO_CODE',type='integer'),
                 Field('IAN_RO_DT',type='datetime'),
                 Field('DIC_NAME'),
                 Field('F_ADR'),
@@ -30,7 +30,7 @@ db.define_table('company',
 
 #лицензии
 db.define_table('license',
-                Field('NFS_CODE'),
+                Field('NFS_CODE',type='double'),
                 Field('NFS_NAME'),
                 Field('LT_NNR2'),
                 Field('LT_NAME'),
