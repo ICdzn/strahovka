@@ -40,7 +40,9 @@
     <li>Email 2: [[=user.email2]]</li>
     <li>Компании, к которым вы относитесь:</li>
         [[for company in user.company_user.select():]]
-            <li>[[=company.company_identifier.name]]</li>
+            [[if company.confirm:]]
+                <li>[[=company.company_identifier.name]]</li>
+            [[pass]]
         [[pass]]
     </ul>
 </div>

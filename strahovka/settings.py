@@ -17,10 +17,11 @@ DB_URI = "sqlite://storage.db"
 DB_POOL_SIZE = 1
 
 # send email on regstration
-VERIFY_EMAIL = False
-
+VERIFY_EMAIL = True
+# account requires to be approved ?
+REQUIRES_APPROVAL = True
 # email settings
-SMTP_SERVER = None
+SMTP_SERVER = 'smtp.gmail.com'
 SMTP_SENDER = "you@example.com"
 SMTP_LOGIN = "username:password"
 SMTP_TLS = False

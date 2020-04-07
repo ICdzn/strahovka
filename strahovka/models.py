@@ -96,6 +96,7 @@ db.define_table('download',
 db.define_table('company_user',
                 Field('user','reference user'),
                 Field('company_identifier','reference company_identifier'),
+                Field('confirm',type='boolean',default=False)
                 )
 #журнал виплат
 db.define_table('payout',
