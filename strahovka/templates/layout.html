@@ -11,7 +11,7 @@
   <body>    
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href=".">
+        <a class="navbar-item" href="[[=URL('index')]]">
           <strong>APP LOGO</strong>
         </a>
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="left-navbar"
@@ -23,25 +23,20 @@
       </div>
       <div id="left-navbar" class="navbar-menu">
         <div class="navbar-start">       
-          <a class="navbar-item" href="[[=URL('index')]]">Home</a>
-          <a class="navbar-item" href="[[=URL('upload')]]">Upload</a>
+          <a class="navbar-item" href="[[=URL('index')]]">Главная</a>
+          <a class="navbar-item" href="[[=URL('upload')]]">Загрузить данные</a>
           [[block page_menu_items]]<!-- individual pages can add menu items here -->[[end]]
         </div>
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="buttons">
-              [[if globals().get('session'):]]
-              [[if globals().get('session').get('user'):]]
-              <a class="button is-primary" href="[[=URL('auth/logout')]]">Sign out</a>
-              <a class="button is-primary" href="[[=URL('edit')]]">Edit profile</a>
-              [[else:]]
-              <a class="button is-primary" href="[[=URL('auth/register')]]">Sign up</a>
-              <a class="button is-light" href="[[=URL('auth/login')]]">Sign in</a>
-              [[pass]]
-              [[else:]]
-              <a class="button is-primary" href="[[=URL('auth/register')]]">Sign up</a>
-              <a class="button is-light" href="[[=URL('auth/login')]]">Sign in</a>
-              [[pass]]
+                [[if globals().get('user'):]]
+                  <a class="button" href="[[=URL('add_company')]]">[[= user['username'] ]]</a>
+                  <a class="button is-primary" href="[[=URL('auth/logout')]]">Выйти</a>
+                  [[else:]]
+                  <a class="button is-primary" href="[[=URL('auth/register')]]">Регистрация</a>
+                  <a class="button is-light" href="[[=URL('auth/login')]]">Войти</a>
+                [[pass]]
             </div>
           </div>
         </div>

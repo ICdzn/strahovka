@@ -5,7 +5,7 @@ from py4web import Session, Cache, Translator, DAL, Field
 from py4web.utils.mailer import Mailer
 from py4web.utils.auth import Auth
 from py4web.utils.tags import Tags
-from py4web.utils.factories import ActionFactory, ButtonFactory
+from py4web.utils.factories import ActionFactory
 from . import settings
 
 names = {'company': {'IAN_FULL_NAME': 'Найменування',
@@ -62,7 +62,10 @@ for item in settings.LOGGERS:
     logger.addHandler(handler)
 
 
-db = DAL('sqlite://models_change10.db',folder=os.path.join(os.path.dirname(__file__), "databases"))
+# connect to db
+db = DAL(settings.DB_URI, folder=settings.DB_FOLDER, pool_size=settings.DB_POOL_SIZE,
+         migrate_enabled=True)
+
 # define global objects that may or may not be used by th actions
 cache = Cache(size=1000)
 T = Translator(settings.T_FOLDER)
@@ -88,35 +91,34 @@ elif settings.SESSION_TYPE == "database":
 
     session = Session(secret=settings.SESSION_SECRET_KEY, storage=DBStore(db))
 
-
-auth = Auth(session, db)
-auth.registration_requires_confirmation = settings.VERIFY_EMAIL
+my_auth = Auth(session, db)
+my_auth.registration_requires_confirmation = settings.VERIFY_EMAIL
 
 if settings.SMTP_SERVER:
-    auth.mailer = Mailer(
+    my_auth.sender = Mailer(
         server=settings.SMTP_SERVER,
         sender=settings.SMTP_SENDER,
         login=settings.SMTP_LOGIN,
         tls=settings.SMTP_TLS,
     )
 
-if auth.db:
+if my_auth.db:
     groups = Tags(db.auth_user, "groups")
 
 if settings.USE_PAM:
     from py4web.utils.auth_plugins.pam_plugin import PamPlugin
 
-    auth.register_plugin(PamPlugin())
+    my_auth.register_plugin(PamPlugin())
 
 if settings.USE_LDAP:
     from py4web.utils.auth_plugins.ldap_plugin import LDAPPlugin
 
-    auth.register_plugin(LDAPPlugin(**settings.LDAP_SETTINGS))
+    my_auth.register_plugin(LDAPPlugin(**settings.LDAP_SETTINGS))
 
 if settings.OAUTH2GOOGLE_CLIENT_ID:
     from py4web.utils.auth_plugins.oauth2google import OAuth2Google  # TESTED
 
-    auth.register_plugin(
+    my_auth.register_plugin(
         OAuth2Google(
             client_id=settings.OAUTH2GOOGLE_CLIENT_ID,
             client_secret=settings.OAUTH2GOOGLE_CLIENT_SECRET,
@@ -126,7 +128,7 @@ if settings.OAUTH2GOOGLE_CLIENT_ID:
 if settings.OAUTH2FACEBOOK_CLIENT_ID:
     from py4web.utils.auth_plugins.oauth2facebook import OAuth2Facebook  # UNTESTED
 
-    auth.register_plugin(
+    my_auth.register_plugin(
         OAuth2Facebook(
             client_id=settings.OAUTH2FACEBOOK_CLIENT_ID,
             client_secret=settings.OAUTH2FACEBOOK_CLIENT_SECRET,
@@ -134,16 +136,9 @@ if settings.OAUTH2FACEBOOK_CLIENT_ID:
         )
     )
 
-if settings.USE_CELERY:
-    from celery import Celery
-    # to use from . common import scheduled and then use it accoding to celery docs
-    # examples in tasks.py
-    scheduler = Celery('apps.%s.tasks' % settings.APP_NAME, broker=settings.CELERY_BROKER)
-
-
 # we enable auth, which requres sessions, T, db and we make T available to
 # the template, although we recommend client-side translations instead
-auth.enable(uses=(session, T, db), env=dict(T=T))
+my_auth.enable(uses=(session, T, db), env=dict(T=T))
 
-unauthenticated = ActionFactory(db, session, T, auth)
-authenticated = ActionFactory(db, session, T, auth.user)
+unauthenticated = ActionFactory(db, session, T, my_auth)
+authenticated = ActionFactory(db, session, T, my_auth.user)

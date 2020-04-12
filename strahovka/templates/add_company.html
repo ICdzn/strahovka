@@ -1,5 +1,5 @@
 [[extend "layout.html"]]
-[[if globals().get('session').get('user'):]]
+[[if globals().get('user'):]]
 <div class="wrapper">
 <div>
         <h4 class="title is-3">Укажите, к какой компании вы относитесь:</h4>
@@ -31,18 +31,18 @@
 
     <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте контактного лица компании: </h1>
     <ul>
-    <li>ID: [[=user.id]]</li>
-    <li>First name: [[=user.first_name]]</li>
-    <li>Last name: [[=user.last_name]]</li>
-    <li>Mobile phone: [[=user.mobile_phone]]</li>
-    <li>Work phone: [[=user.work_phone]]</li>
-    <li>Email 1: [[=user.email1]]</li>
-    <li>Email 2: [[=user.email2]]</li>
+    <li>ID: [[=site_user.id]]</li>
+    <li>First name: [[=site_user.first_name]]</li>
+    <li>Last name: [[=site_user.last_name]]</li>
+    <li>Mobile phone: [[=site_user.mobile_phone]]</li>
+    <li>Work phone: [[=site_user.work_phone]]</li>
+    <li>Email 1: [[=site_user.email1]]</li>
+    <li>Email 2: [[=site_user.email2]]</li>
     <li>Компании, к которым вы относитесь:</li>
-        [[for company in user.company_user.select():]]
-            [[if company.confirm:]]
+        [[for company in site_user.company_user.select():]]
+
                 <li>[[=company.company_identifier.name]]</li>
-            [[pass]]
+
         [[pass]]
     </ul>
 </div>

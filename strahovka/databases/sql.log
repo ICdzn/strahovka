@@ -3079,3 +3079,43 @@ success!
 timestamp: 2020-04-07T18:16:33.033515
 ALTER TABLE "company_user" ADD "confirm" CHAR(1);
 success!
+timestamp: 2020-04-12T20:59:40.257820
+CREATE TABLE "site_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "mobile_phone" CHAR(512),
+    "work_phone" CHAR(512),
+    "email1" CHAR(512),
+    "email2" CHAR(512),
+    "auth_user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
+);
+success!
+timestamp: 2020-04-12T20:59:40.442998
+ALTER TABLE "download" ADD "site_user" INTEGER REFERENCES "site_user" ("id") ON DELETE CASCADE  ;
+success!
+timestamp: 2020-04-12T20:59:40.513594
+ALTER TABLE "company_user" ADD "site_user" INTEGER REFERENCES "site_user" ("id") ON DELETE CASCADE  ;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!

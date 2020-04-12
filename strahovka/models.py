@@ -74,7 +74,7 @@ db.define_table('unit',
                 Field('company_id','reference company'))
 
 #юзеры
-db.define_table('user',
+db.define_table('site_user',
                 Field('first_name'),
                 Field('last_name'),
                 Field('mobile_phone'),
@@ -88,13 +88,13 @@ db.define_table('download',
                 Field('name'),
                 Field('data'),
                 Field('quarter_num'),
-                Field('user','reference user'),
+                Field('site_user','reference site_user'),
                 Field('company_id','reference company'))
 
 
 #пользователи компании
 db.define_table('company_user',
-                Field('user','reference user'),
+                Field('site_user','reference site_user'),
                 Field('company_identifier','reference company_identifier'),
                 Field('confirm',type='boolean',default=False)
                 )

@@ -262,18 +262,18 @@ class DatabaseAccess:
         return rows
 
     def get_user(self,id):
-        user=db(db.user.auth_user == id).select().first()
+        user=db(db.site_user.auth_user == id).select().first()
         return user
 
     def get_auth_user(self,id):
         auth_user=db(db.auth_user.id == id).select().first()
         return auth_user
 
-    def add_company_user(self,user,company_identifier):
-        db['company_user'].insert(user=user, company_identifier=company_identifier)
+    def add_company_user(self,site_user,company_identifier):
+        db['company_user'].insert(site_user=site_user, company_identifier=company_identifier)
 
     def delete_company_user(self,user_id,company_identifier):
-        db(db.company_user.user == user_id and db.company_user.company_identifier == company_identifier).delete()
+        db(db.company_user.site_user == user_id and db.company_user.company_identifier == company_identifier).delete()
 
     def get_codes(self, identifier):
         data=[]

@@ -1,34 +1,30 @@
 from py4web import action, request, Session
 from .models import db
-from .common import names,tables
+from .common import *
 from .classes import Updates,DatabaseAccess,DataModify
 from py4web.utils.form import Form, FormStyleBulma
 
 import smtplib
 import pandas as pd
 import os
-from py4web.utils.auth import Auth
 import datetime
 
-session=Session(secret='some key')
-auth=Auth(session,db)
-auth.enable()
 
-@action("index")
-@action.uses("company_detail.html", db)
-def app_second():
+@authenticated()
+def index():
+    user=my_auth.get_user()
+    print(user)
+    rows = db(db.company).select()
+
+
+    return dict(rows=rows)
+
+@authenticated()
+def license():
     try:
         rows = db(db.company).select()
     except: rows=[]
-    return dict(rows=rows,session=session)
-
-@action("license")
-@action.uses("license.html", db)
-def app():
-    try:
-        rows = db(db.company).select()
-    except: rows=[]
-    return dict(rows=rows,session=session)
+    return dict(rows=rows)
 
 @action("access")
 @action.uses(db)
@@ -44,28 +40,22 @@ def access():
     print(di)
     return 'OK'
 
-@action("edit",method=["GET","POST"])
-@action.uses("add_company.html", db)
-def add():
+@authenticated()
+def add_company():
     # db(db.company.id>0).delete()
     # db(db.license.id>0).delete()
-    try:
-        user_id = globals().get('session').get('user').get('id')
-        user = db(db.user.auth_user == user_id).select().first()
-        if not user:
-            db['user'].insert(auth_user=user_id)
-        rows = db(db.company_identifier).select()
-        auth_user = db(db.auth_user.id==user_id).select().first()
-        user = db(db.user.auth_user == user_id).select().first()
-        form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
-        form2 = Form(db.user, user, deletable=False, formstyle=FormStyleBulma)
-    except AttributeError:
-        user=None
-        rows=None
-        auth_user=None
-        form1=None
-        form2=None
-    return dict(rows=rows,auth_user=auth_user,user=user,session=session,form1=form1, form2=form2)
+    user_id = my_auth.get_user()['id']
+    user = db(db.site_user.auth_user == user_id).select().first()
+    if not user:
+        db['site_user'].insert(auth_user=user_id)
+    rows = db(db.company_identifier).select()
+    auth_user = db(db.auth_user.id==user_id).select().first()
+    site_user = db(db.site_user.auth_user == user_id).select().first()
+    form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
+    form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
+    print(site_user)
+    print(form2)
+    return dict(rows=rows,auth_user=auth_user,site_user=site_user,form1=form1, form2=form2)
 
 @action("update_database",method="GET")
 @action.uses(db)
@@ -115,16 +105,16 @@ def add():
     rows=db_obj.get_company_identifiers()
     choice_id=request.POST.get('choice_id')
     action = request.POST.get('action')
-    user_id = globals().get('session').get('user').get('id')
-    user = db_obj.get_user(user_id)
+    user_id = my_auth.get_user()['id']
+    site_user = db_obj.get_user(user_id)
     auth_user = db_obj.get_auth_user(user_id)
     if action=='add':
-        db_obj.add_company_user(user,choice_id)
+        db_obj.add_company_user(site_user,choice_id)
     elif action=='delete':
-        db_obj.delete_company_user(user,choice_id)
+        db_obj.delete_company_user(site_user,choice_id)
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
-    form2 = Form(db.user, user, deletable=False, formstyle=FormStyleBulma)
-    dict(rows=rows,auth_user=auth_user,user=user,session=session,form1=form1, form2=form2)
+    form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
+    dict(rows=rows,auth_user=auth_user,site_user=site_user,session=session,form1=form1, form2=form2)
 
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)
@@ -132,7 +122,7 @@ def add():
     # obj=Updates()
     # tuple_obj = obj.parser()
     # print(tuple_obj[1])
-    rows = db(db.user).select()
+    rows = db(db.company_user).select()
     rows2=db(db.company_identifier).select()
     return dict(rows=rows,rows2=rows2)
 
