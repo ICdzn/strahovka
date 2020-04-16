@@ -15,8 +15,6 @@ def index():
     user=my_auth.get_user()
     print(user)
     rows = db(db.company).select()
-
-
     return dict(rows=rows)
 
 @authenticated()
@@ -48,13 +46,13 @@ def add_company():
     user = db(db.site_user.auth_user == user_id).select().first()
     if not user:
         db['site_user'].insert(auth_user=user_id)
-    rows = db(db.company_identifier).select()
+    last_company = db(db.company).select().last()
+    last_data = last_company.update_date
+    rows = db(db.company.update_date == last_data).select()
     auth_user = db(db.auth_user.id==user_id).select().first()
     site_user = db(db.site_user.auth_user == user_id).select().first()
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
     form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
-    print(site_user)
-    print(form2)
     return dict(rows=rows,auth_user=auth_user,site_user=site_user,form1=form1, form2=form2)
 
 @action("update_database",method="GET")
@@ -66,12 +64,11 @@ def update_database():
     try:
         data = db_obj.get_update_data()
         now = datetime.datetime.now()
-        if (now - data).seconds > 10000:
+        if (now - data).days > 7:
             tuple_obj = obj.parser()
             obj.compare(tuple_obj[2], tuple_obj[0])
             modify_obj.modify_company(tuple_obj[0])
             modify_obj.modify_license(tuple_obj[1])
-            obj.add_reference(tuple_obj[0])
             print(db_obj.upload_companies(tuple_obj[0])+'1')
             print(db_obj.upload_licenses(tuple_obj[1])+'1')
     except AttributeError:
@@ -79,39 +76,46 @@ def update_database():
         obj.compare(tuple_obj[2],tuple_obj[0])
         modify_obj.modify_company(tuple_obj[0])
         modify_obj.modify_license(tuple_obj[1])
-        obj.add_reference(tuple_obj[0])
         print(db_obj.upload_companies(tuple_obj[0])+'2')
         print(db_obj.upload_licenses(tuple_obj[1])+"2")
     return 'Hello'
 
-@action("update_id",method="GET")
-@action.uses(db)
-def update_database():
-    db(db.company.id>0).delete()
-    db(db.license.id>0).delete()
-    db(db.company_identifier.id > 0).delete()
-    db_obj = Updates()
-    modify_obj = DataModify()
-    data=db_obj.company_identifier_update()
-    modify_obj.modify_company_identifier(data)
-    db_obj2=DatabaseAccess()
-    print(db_obj2.upload_companies_id(data))
-    return 'Hi'
 
 @action("static/add_company",method="POST")
 @action.uses("add_company.html", db)
 def add():
     db_obj=DatabaseAccess()
-    rows=db_obj.get_company_identifiers()
+    last_company = db(db.company).select().last()
+    last_data = last_company.update_date
+    rows = db(db.company.update_date == last_data).select()
     choice_id=request.POST.get('choice_id')
     action = request.POST.get('action')
+    current_company=db(db.company.id == choice_id).select().last()
     user_id = my_auth.get_user()['id']
     site_user = db_obj.get_user(user_id)
     auth_user = db_obj.get_auth_user(user_id)
+    fromaddr = 'strahovka.work2020@gmail.com'
+    toaddr = auth_user.email
+    #toaddr = current_company.email
+
+    username = 'strahovka.work2020@gmail.com'
+    password = 'cdnblpUYBvdlH8'
+    server = smtplib.SMTP('smtp.gmail.com:587')
     if action=='add':
-        db_obj.add_company_user(site_user,choice_id)
+        db_obj.add_company_user(site_user, choice_id)
+        server.starttls()
+        server.login(username, password)
+        msg1 = 'Потвердите что вашу компанию обслуживает '+str(site_user.first_name)
+        msg2 = 'Confirm that you want to add this company'+str(current_company.IAN_FULL_NAME)+str(current_company.IM_NUMIDENT)
+        server.sendmail(fromaddr, toaddr, msg2.encode("utf8"))
+        server.quit()
     elif action=='delete':
         db_obj.delete_company_user(site_user,choice_id)
+        server.starttls()
+        msg3 = 'Confirm that you want to delete this company'+str(current_company.IAN_FULL_NAME)+str(current_company.IM_NUMIDENT)
+        server.login(username, password)
+        server.sendmail(fromaddr, toaddr, msg3.encode("utf8"))
+        server.quit()
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
     form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
     dict(rows=rows,auth_user=auth_user,site_user=site_user,session=session,form1=form1, form2=form2)
@@ -123,8 +127,7 @@ def add():
     # tuple_obj = obj.parser()
     # print(tuple_obj[1])
     rows = db(db.company_user).select()
-    rows2=db(db.company_identifier).select()
-    return dict(rows=rows,rows2=rows2)
+    return dict(rows=rows)
 
 @action("upload",method="GET")
 @action.uses("upload_file.html")

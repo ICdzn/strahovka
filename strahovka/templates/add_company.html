@@ -5,7 +5,7 @@
         <h4 class="title is-3">Укажите, к какой компании вы относитесь:</h4>
 <select id="select_first" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
     [[for row in rows:]]
-        <option value="[[=row.id]]">[[=row.name]]</option>
+        <option value="[[=row.id]]">[[=row.IAN_FULL_NAME]]</option>
     [[pass]]
 </select>
     <button id="add">Добавить</button>
@@ -14,7 +14,7 @@
     <h4 class="title is-3" style="margin-top:40px;">Укажите, какую компанию вы хотите удалить из своего списка</h4>
 <select id="select_second" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
     [[for row in rows:]]
-        <option value="[[=row.id]]">[[=row.name]]</option>
+        <option value="[[=row.id]]">[[=row.IAN_FULL_NAME]]</option>
     [[pass]]
 </select>
     <button id="delete_company">Удалить</button>
@@ -40,8 +40,7 @@
     <li>Email 2: [[=site_user.email2]]</li>
     <li>Компании, к которым вы относитесь:</li>
         [[for company in site_user.company_user.select():]]
-
-                <li>[[=company.company_identifier.name]]</li>
+                <li>[[=company.company_id.IAN_FULL_NAME]]</li>
 
         [[pass]]
     </ul>

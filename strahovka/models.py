@@ -3,11 +3,6 @@ from py4web import Field
 import datetime
 
 
-#идентификаторы компании
-db.define_table('company_identifier',
-                Field('name'),
-                Field('code',type='integer',length=8,unique=True))
-
 db.define_table('company',
                 Field('IAN_FULL_NAME'),
                 Field('FIN_TYPE'),
@@ -25,8 +20,7 @@ db.define_table('company',
                 Field('abbreviation'),
                 Field('position'),
                 Field('update_date', type='datetime', default= datetime.datetime.now()),
-                Field('changes'),
-                Field('company_identifier','reference company_identifier'))
+                Field('changes'))
 
 #лицензии
 db.define_table('license',
@@ -95,7 +89,7 @@ db.define_table('download',
 #пользователи компании
 db.define_table('company_user',
                 Field('site_user','reference site_user'),
-                Field('company_identifier','reference company_identifier'),
+                Field('company_id','reference company'),
                 Field('confirm',type='boolean',default=False)
                 )
 #журнал виплат
