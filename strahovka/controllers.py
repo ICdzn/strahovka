@@ -52,6 +52,7 @@ def add_company():
     auth_user = db(db.auth_user.id==user_id).select().first()
     site_user = db(db.site_user.auth_user == user_id).select().first()
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
+    print(form1)
     form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
     return dict(rows=rows,auth_user=auth_user,site_user=site_user,form1=form1, form2=form2)
 
@@ -80,45 +81,58 @@ def update_database():
         print(db_obj.upload_licenses(tuple_obj[1])+"2")
     return 'Hello'
 
-
 @action("static/add_company",method="POST")
 @action.uses("add_company.html", db)
 def add():
-    db_obj=DatabaseAccess()
+    db_obj = DatabaseAccess()
     last_company = db(db.company).select().last()
     last_data = last_company.update_date
     rows = db(db.company.update_date == last_data).select()
-    choice_id=request.POST.get('choice_id')
+    choice_id = request.POST.get('choice_id')
     action = request.POST.get('action')
-    current_company=db(db.company.id == choice_id).select().last()
+    current_company = db(db.company.id == choice_id).select().last()
     user_id = my_auth.get_user()['id']
     site_user = db_obj.get_user(user_id)
     auth_user = db_obj.get_auth_user(user_id)
     fromaddr = 'strahovka.work2020@gmail.com'
     toaddr = auth_user.email
-    #toaddr = current_company.email
+    # toaddr = current_company.email
 
     username = 'strahovka.work2020@gmail.com'
     password = 'cdnblpUYBvdlH8'
     server = smtplib.SMTP('smtp.gmail.com:587')
-    if action=='add':
-        db_obj.add_company_user(site_user, choice_id)
+    if action == 'add':
+        db_obj.insert_request(site_user, choice_id, action)
         server.starttls()
         server.login(username, password)
-        msg1 = 'Потвердите что вашу компанию обслуживает '+str(site_user.first_name)
-        msg2 = 'Confirm that you want to add this company'+str(current_company.IAN_FULL_NAME)+str(current_company.IM_NUMIDENT)
+        msg1 = 'Потвердите что вашу компанию обслуживает ' + str(site_user.first_name)
+        msg2 = 'Confirm that you want to add this company' + str(current_company.IAN_FULL_NAME) + str(
+            current_company.IM_NUMIDENT)
         server.sendmail(fromaddr, toaddr, msg2.encode("utf8"))
         server.quit()
-    elif action=='delete':
-        db_obj.delete_company_user(site_user,choice_id)
+    elif action == 'delete':
+        db_obj.insert_request(site_user, choice_id, action)
         server.starttls()
-        msg3 = 'Confirm that you want to delete this company'+str(current_company.IAN_FULL_NAME)+str(current_company.IM_NUMIDENT)
+        msg3 = 'Confirm that you want to delete this company' + str(current_company.IAN_FULL_NAME) + str(
+            current_company.IM_NUMIDENT)
         server.login(username, password)
         server.sendmail(fromaddr, toaddr, msg3.encode("utf8"))
         server.quit()
     form1 = Form(db.auth_user, auth_user, deletable=False, formstyle=FormStyleBulma)
     form2 = Form(db.site_user, site_user, deletable=False, formstyle=FormStyleBulma)
-    dict(rows=rows,auth_user=auth_user,site_user=site_user,session=session,form1=form1, form2=form2)
+    return dict(rows=rows,auth_user=auth_user,site_user=site_user,session=session,form1=form1, form2=form2)
+
+@action("update_company_user")
+def add_request():
+    db_obj = DatabaseAccess()
+    rows = db(db.request).select()
+    for request in rows:
+        if request.action == 'add' and request.confirm == True:
+            check = db_obj.check_company(request.company_id, request.site_user)
+            if not check:
+                db_obj.add_company_user(request.site_user, request.company_id)
+        elif request.action == 'delete' and request.confirm == True:
+            db_obj.delete_company_user(request.site_user, request.company_id)
 
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)
@@ -126,7 +140,9 @@ def add():
     # obj=Updates()
     # tuple_obj = obj.parser()
     # print(tuple_obj[1])
-    rows = db(db.company_user).select()
+    db_obj = DatabaseAccess()
+    db_obj.confirm_request()
+    rows = db(db.request).select()
     return dict(rows=rows)
 
 @action("upload",method="GET")

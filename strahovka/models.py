@@ -89,9 +89,14 @@ db.define_table('download',
 #пользователи компании
 db.define_table('company_user',
                 Field('site_user','reference site_user'),
-                Field('company_id','reference company'),
-                Field('confirm',type='boolean',default=False)
-                )
+                Field('company_id','reference company'))
+
+db.define_table('request',
+                Field('site_user', 'reference site_user'),
+                Field('company_id', 'reference company'),
+                Field('action'),
+                Field('request_date', type='datetime', default= datetime.datetime.now()),
+                Field('confirm',type='boolean',default=False))
 #журнал виплат
 db.define_table('payout',
                 Field('insurance_type'),

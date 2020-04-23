@@ -190,7 +190,11 @@ class DatabaseAccess:
         db['company_user'].insert(site_user=site_user, company_id=company_identifier)
 
     def delete_company_user(self,user_id,company_identifier):
-        db(db.company_user.site_user == user_id and db.company_user.company_id == company_identifier).delete()
+        company = db(db.company.id == company_identifier).select().last()
+        code = company.IM_NUMIDENT
+        companies = db(db.company.IM_NUMIDENT == code).select()
+        for i in companies:
+            db(db.company_user.site_user == user_id and db.company_user.company_id == i.id).delete()
 
     def get_codes(self, identifier):
         data=[]
@@ -243,5 +247,24 @@ class DatabaseAccess:
             db['license'].insert(**license_list[i])
 
         return "OK_license"
+
+    def check_company(self, current, site_user):
+
+        rows = db(db.company_user.site_user == site_user).select()
+        for i in rows:
+            company2 = db(db.company.id == i.company_id).select().last()
+            if company2.IM_NUMIDENT == current.IM_NUMIDENT:
+                return True
+        return False
+
+    def insert_request(self, site_user, company_id, action):
+
+        db['request'].insert(site_user = site_user, company_id = company_id, action = action)
+
+    def confirm_request(self):
+
+        row = db(db.request.id == 3).select().last()
+        row.update_record(confirm = True)
+
 
 

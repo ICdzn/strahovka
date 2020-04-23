@@ -3160,3 +3160,67 @@ success!
 success!
 success!
 success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+timestamp: 2020-04-23T21:21:53.303046
+CREATE TABLE "request"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "site_user" INTEGER REFERENCES "site_user" ("id") ON DELETE CASCADE  ,
+    "company_id" INTEGER REFERENCES "company" ("id") ON DELETE CASCADE  ,
+    "action" CHAR(512),
+    "request_date" TIMESTAMP,
+    "confirm" CHAR(1)
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
