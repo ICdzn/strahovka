@@ -1,5 +1,5 @@
 [[extend "layout.html"]]
-[[if globals().get('session').get('user'):]]
+[[if globals().get('user'):]]
 <h2>Загрузить файл:</h2>
 <form method="post" action="upload" enctype="multipart/form-data">
     <div>

@@ -261,10 +261,22 @@ class DatabaseAccess:
 
         db['request'].insert(site_user = site_user, company_id = company_id, action = action)
 
-    def confirm_request(self):
+    def confirm_request(self, id):
 
-        row = db(db.request.id == 3).select().last()
+        row = db(db.request.id == id).select().last()
         row.update_record(confirm = True)
+
+    def update_company_user(self):
+
+        rows = db(db.request).select()
+        for request in rows:
+            if request.action == 'add' and request.confirm == True:
+                check = self.check_company(request.company_id, request.site_user)
+                if not check:
+                    self.add_company_user(request.site_user, request.company_id)
+            elif request.action == 'delete' and request.confirm == True:
+                self.delete_company_user(request.site_user, request.company_id)
+
 
 
 

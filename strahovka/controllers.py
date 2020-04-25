@@ -125,29 +125,16 @@ def add():
 @action("update_company_user")
 def add_request():
     db_obj = DatabaseAccess()
-    rows = db(db.request).select()
-    for request in rows:
-        if request.action == 'add' and request.confirm == True:
-            check = db_obj.check_company(request.company_id, request.site_user)
-            if not check:
-                db_obj.add_company_user(request.site_user, request.company_id)
-        elif request.action == 'delete' and request.confirm == True:
-            db_obj.delete_company_user(request.site_user, request.company_id)
+    db_obj.update_company_user()
 
 @action("company_users",method="GET")
 @action.uses("company_users.html", db)
 def add():
-    # obj=Updates()
-    # tuple_obj = obj.parser()
-    # print(tuple_obj[1])
-    db_obj = DatabaseAccess()
-    db_obj.confirm_request()
     rows = db(db.request).select()
     return dict(rows=rows)
 
-@action("upload",method="GET")
-@action.uses("upload_file.html")
-def upload_get():
+@authenticated()
+def upload():
     return dict(message="",new_data_dict={},session=session)
 
 @action("static/upload",method="POST")
